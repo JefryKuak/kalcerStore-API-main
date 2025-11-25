@@ -17,6 +17,6 @@ class Favorit extends Model
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'products_id');
+        return $this->belongsTo(Product::class, 'products_id', 'id');
     }
 }

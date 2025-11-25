@@ -30,7 +30,6 @@ Route::get('/favorit', [FavoritController::class, 'index']);
 Route::get('/favorit/user/{id}', [FavoritController::class, 'byUser']);
 Route::post('/favorit', [FavoritController::class, 'store']);
 Route::delete('/favorit/{id}', [FavoritController::class, 'destroy']);
-Route::post('/favorit/delete', [FavoritController::class, 'deleteByProduct']);
 
 // REVIEW
 Route::get('/reviews', [ReviewController::class, 'index']);
@@ -45,6 +44,7 @@ Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/orders/{id}', [OrderController::class, 'show']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::put('/orders/{id}', [OrderController::class, 'update']);
+Route::patch('/orders/{id}', [OrderController::class, 'update']);
 Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
 // ORDER DETAIL

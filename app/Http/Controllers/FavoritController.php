@@ -29,7 +29,7 @@ class FavoritController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_pelanggan' => 'required|exists:user,id_pelanggan',
+            'id_pelanggan' => 'required|exists:users,id_pelanggan',
             'products_id' => 'required|exists:products,id'
         ]);
 
@@ -56,24 +56,6 @@ class FavoritController extends Controller
     public function destroy($id)
     {
         $fav = Favorit::find($id);
-
-        if (!$fav) {
-            return response()->json(['message' => 'Data favorit tidak ditemukan'], 404);
-        }
-
-        $fav->delete();
-
-        return response()->json([
-            'message' => 'Berhasil dihapus dari favorit'
-        ]);
-    }
-
-    // OPTIONAL: Hapus favorit berdasarkan user + product
-    public function deleteByProduct(Request $request)
-    {
-        $fav = Favorit::where('id_pelanggan', $request->id_pelanggan)
-                      ->where('products_id', $request->products_id)
-                      ->first();
 
         if (!$fav) {
             return response()->json(['message' => 'Data favorit tidak ditemukan'], 404);

@@ -11,16 +11,14 @@ class UserController extends Controller
     // GET ALL USERS
     public function index()
     {
-        // ambil semua user tanpa menampilkan password
         $users = User::all();
         return response()->json($users);
     }
 
-    // GET USER BY ID (+ FAVORIT & PRODUK)
+    // GET USER BY ID (+ FAVORIT jika ada relasi nanti)
     public function show($id)
     {
-        // ambil user beserta daftar favorit dan produk favorit
-        $user = User::with('favorit.product')->find($id);
+        $user = User::find($id);
 
         if (!$user) {
             return response()->json(['message' => 'User tidak ditemukan'], 404);
@@ -33,27 +31,26 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'fullname' => 'required',
+            'fullname' => 'required|string|max:50',
             'email' => 'required|email|unique:users,email',
-            'foto_profil' => 'nullable|string',
             'whatsapp' => 'required|size:13',
-            'password' => 'required',
+            'password' => 'required|string|min:6',
+            'foto_profil' => 'nullable|string',
             'role' => 'nullable|in:user,admin'
         ]);
 
-        // hash password sebelum disimpan
         $data = $request->all();
         $data['password'] = Hash::make($request->password);
-        if (!isset($data['role'])) {
-            $data['role'] = 'user';
-        }
+        $data['role'] = $data['role'] ?? 'user';
+
 
         $user = User::create($data);
+        dd($data, $user);
 
         return response()->json([
             'message' => 'User berhasil dibuat',
             'data' => $user
-        ]);
+        ], 201);
     }
 
     // UPDATE USER
@@ -66,11 +63,11 @@ class UserController extends Controller
         }
 
         $request->validate([
-            'fullname' => 'sometimes|required',
+            'fullname' => 'sometimes|required|string|max:50',
             'email' => 'sometimes|required|email|unique:users,email,' . $id . ',id_pelanggan',
+            'whatsapp' => 'sometimes|required|size:13',
+            'password' => 'sometimes|required|string|min:6',
             'foto_profil' => 'nullable|string',
-            'whatsapp' => 'sometimes|required',
-            'password' => 'sometimes|required',
             'role' => 'nullable|in:user,admin'
         ]);
 
@@ -80,6 +77,7 @@ class UserController extends Controller
         }
 
         $user->update($data);
+        $user->refresh();
 
         return response()->json([
             'message' => 'User berhasil diperbarui',
