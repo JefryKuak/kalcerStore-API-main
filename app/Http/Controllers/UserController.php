@@ -4,18 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     // GET ALL USERS
     public function index()
     {
-        return response()->json(User::all());
+        // ambil semua user tanpa menampilkan password
+        $users = User::all();
+        return response()->json($users);
     }
 
-    // GET USER BY ID (+ DAFTAR FAVORIT & PRODUK)
+    // GET USER BY ID (+ FAVORIT & PRODUK)
     public function show($id)
     {
+        // ambil user beserta daftar favorit dan produk favorit
         $user = User::with('favorit.product')->find($id);
 
         if (!$user) {
@@ -30,12 +34,21 @@ class UserController extends Controller
     {
         $request->validate([
             'fullname' => 'required',
-            'email' => 'required|email|unique:user,email',
-            'whatsapp' => 'required',
-            'password' => 'required'
+            'email' => 'required|email|unique:users,email',
+            'foto_profil' => 'nullable|string',
+            'whatsapp' => 'required|size:13',
+            'password' => 'required',
+            'role' => 'nullable|in:user,admin'
         ]);
 
-        $user = User::create($request->all());
+        // hash password sebelum disimpan
+        $data = $request->all();
+        $data['password'] = Hash::make($request->password);
+        if (!isset($data['role'])) {
+            $data['role'] = 'user';
+        }
+
+        $user = User::create($data);
 
         return response()->json([
             'message' => 'User berhasil dibuat',
@@ -52,7 +65,21 @@ class UserController extends Controller
             return response()->json(['message' => 'User tidak ditemukan'], 404);
         }
 
-        $user->update($request->all());
+        $request->validate([
+            'fullname' => 'sometimes|required',
+            'email' => 'sometimes|required|email|unique:users,email,' . $id . ',id_pelanggan',
+            'foto_profil' => 'nullable|string',
+            'whatsapp' => 'sometimes|required',
+            'password' => 'sometimes|required',
+            'role' => 'nullable|in:user,admin'
+        ]);
+
+        $data = $request->all();
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $user->update($data);
 
         return response()->json([
             'message' => 'User berhasil diperbarui',
