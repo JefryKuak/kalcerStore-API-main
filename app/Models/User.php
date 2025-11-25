@@ -4,10 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Model
 {
     use HasFactory, Notifiable;
 
@@ -30,16 +29,5 @@ class User extends Authenticatable implements JWTSubject
     public function favorit()
     {
         return $this->hasMany(Favorit::class, 'id_pelanggan');
-    }
-
-    // JWT FUNCTIONS
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();  // otomatis pakai id_pelanggan
-    }
-
-    public function getJWTCustomClaims()
-    {
-        return [];
     }
 }
